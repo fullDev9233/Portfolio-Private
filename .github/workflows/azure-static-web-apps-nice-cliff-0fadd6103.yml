@@ -1,0 +1,169 @@
+name: Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - staging
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - staging
+
+env:
+  REACT_APP_BACKEND_API: ''
+  REACT_APP_GRAPHQL_API: ''
+
+jobs:
+  install:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
+          scope: ''
+
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # caching node_modules
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Dependencies
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Run Lint
+        run: npm run lint
+
+  #     - name: Run e2e tests
+  #       uses: cypress-io/github-action@v4.2.0
+  #       with:
+  #         install: false
+  #         start: npm start
+  #         wait-on: 'http://localhost:3000'
+  #         wait-on-timeout: 120
+  #       env:
+  #         REACT_APP_BACKEND_API: ${{ env.REACT_APP_BACKEND_API }}
+  #         REACT_APP_GRAPHQL_API: ${{ env.REACT_APP_GRAPHQL_API }}
+
+  # cypress_tests:
+  #   name: Cypress Tests
+  #   needs: install
+  #   if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # run copies of the current job in parallel
+  #       containers: [1, 2, 3, 4, 5]
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+
+  #     - name: Cache node modules
+  #       id: cache-nodemodules
+  #       uses: actions/cache@v3
+  #       env:
+  #         cache-name: cache-node-modules
+  #       with:
+  #         # caching node_modules
+  #         path: node_modules
+  #         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-build-${{ env.cache-name }}-
+  #           ${{ runner.os }}-build-
+  #           ${{ runner.os }}-
+
+  #     - name: Install Cypress
+  #       run: npx cypress install
+
+  #     - name: Run Tests
+  #       uses: cypress-io/github-action@v4.0.0 # use the explicit version number
+  #       with:
+  #         # we have already installed all dependencies above
+  #         install: false
+  #         parallel: true
+  #         record: true
+  #         start: npm start
+  #         wait-on: 'http://localhost:3000'
+  #         wait-on-timeout: 120
+  #       env:
+  #         # Recommended: pass the GitHub token lets this action correctly
+  #         # determine the unique run id necessary to re-run the checks
+  #         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_KEY }}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         REACT_APP_BACKEND_API: ${{ env.REACT_APP_BACKEND_API }}
+  #         REACT_APP_GRAPHQL_API: ${{ env.REACT_APP_GRAPHQL_API }}
+
+  deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    needs: install
+    runs-on: ubuntu-latest
+    name: Deploy Job
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Get Cached node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # caching node_modules
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Run Build
+        run: npm run build
+
+      - name: Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_NICE_CLIFF_0FADD6103 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: 'upload'
+          skip_app_build: true
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: 'build' # App source code path
+        env: # Add environment variables here
+          REACT_APP_BACKEND_API: ${{ env.REACT_APP_BACKEND_API }}
+          REACT_APP_GRAPHQL_API: ${{ env.REACT_APP_GRAPHQL_API }}
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_NICE_CLIFF_0FADD6103 }}
+          action: 'close'

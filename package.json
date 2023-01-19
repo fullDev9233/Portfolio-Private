@@ -1,0 +1,101 @@
+{
+  "name": "portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "npm run build",
+    "eject": "react-scripts eject",
+    "cypress": "cypress open",
+    "cy:run": "cypress run",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "lint": "eslint ./",
+    "lint-fix": "eslint ./ --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "dev": "npm run codegen && npm run start",
+    "build2": "npm run codegen && npm run build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": 0,
+      "import/no-anonymous-default-export": 0
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "@graphql-codegen/cli": "^2.13.6",
+    "@graphql-codegen/client-preset": "^1.0.6",
+    "@hookform/resolvers": "^2.9.3",
+    "@mui/icons-material": "^5.6.2",
+    "@mui/material": "^5.10.4",
+    "@mui/x-data-grid": "^5.11.1",
+    "@mui/x-data-grid-premium": "^5.17.1",
+    "@mui/x-date-pickers-pro": "^5.0.0-alpha.7",
+    "@mui/x-license-pro": "^5.12.0",
+    "@reduxjs/toolkit": "^1.8.1",
+    "axios": "^0.23.0",
+    "date-fns": "^2.28.0",
+    "graphql": "^16.6.0",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-double-scrollbar": "^0.0.15",
+    "react-dropzone-uploader": "^2.11.0",
+    "react-hook-form": "^7.33.0",
+    "react-number-format": "^5.0.1",
+    "react-redux": "^8.0.1",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "^5.0.0",
+    "recharts": "^2.1.13",
+    "redux": "^4.2.0",
+    "redux-persist": "^6.0.0",
+    "styled-components": "^5.3.3",
+    "typescript": "^4.4.4",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@cypress/react": "^5.12.4",
+    "@cypress/webpack-dev-server": "^1.8.4",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
+    "@types/eslint-config-prettier": "^6.11.0",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^12.20.33",
+    "@types/prettier": "^2.7.0",
+    "@types/react": "^17.0.31",
+    "@types/react-dom": "^17.0.10",
+    "@types/styled-components": "^5.1.15",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "cypress": "^10.9.0",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.4.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "html-webpack-plugin": "^4.5.2",
+    "prettier": "^2.7.1"
+  }
+}
